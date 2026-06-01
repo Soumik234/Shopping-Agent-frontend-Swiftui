@@ -52,25 +52,7 @@ struct OrderRowView: View {
 
     var body: some View {
         HStack(spacing: DS.Spacing.md) {
-            ZStack(alignment: .bottomTrailing) {
-                RoundedRectangle(cornerRadius: DS.Radius.row)
-                    .fill(Color.accentColor)
-
-                Image(systemName: "bag.fill")
-                    .font(.title3)
-                    .foregroundStyle(.white)
-
-                Circle()
-                    .fill(DS.ColorToken.success)
-                    .frame(width: 10, height: 10)
-                    .overlay {
-                        Circle()
-                            .stroke(DS.ColorToken.surface, lineWidth: 2)
-                    }
-                    .offset(x: 2, y: 2)
-            }
-            .frame(width: 44, height: 44)
-            .accessibilityHidden(true)
+            orderThumbnail
 
             VStack(alignment: .leading, spacing: DS.Spacing.xs) {
                 Text(order.productName)
@@ -91,6 +73,37 @@ struct OrderRowView: View {
                 .foregroundStyle(.tint)
         }
         .padding(.vertical, DS.Spacing.xs)
+    }
+
+    private var orderThumbnail: some View {
+        AsyncImage(url: order.imageURL) { phase in
+            switch phase {
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFill()
+            default:
+                ZStack {
+                    Color.accentColor.opacity(0.16)
+                    Image(systemName: "bag.fill")
+                        .font(.title3)
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+        }
+        .frame(width: 56, height: 56)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.row))
+        .overlay(alignment: .bottomTrailing) {
+            Circle()
+                .fill(DS.ColorToken.success)
+                .frame(width: 12, height: 12)
+                .overlay {
+                    Circle()
+                        .stroke(DS.ColorToken.surface, lineWidth: 2)
+                }
+                .offset(x: 2, y: 2)
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -122,6 +135,25 @@ struct OrderDetailSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.xl) {
+            AsyncImage(url: order.imageURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                default:
+                    ZStack {
+                        Color.accentColor.opacity(0.14)
+                        Image(systemName: "bag.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color.accentColor)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
+
             VStack(alignment: .leading, spacing: DS.Spacing.sm) {
                 Text(order.productName)
                     .font(.title3.bold())

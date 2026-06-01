@@ -90,7 +90,7 @@ struct ChatView: View {
 
     @ViewBuilder
     private func messageContent(_ message: ChatMessage) -> some View {
-        let products = viewModel.parseProducts(from: message.content)
+        let products = viewModel.products(for: message)
         if message.role == "assistant", !products.isEmpty {
             VStack(alignment: .leading, spacing: DS.Spacing.md) {
                 ScrollView(.horizontal, showsIndicators: false) {

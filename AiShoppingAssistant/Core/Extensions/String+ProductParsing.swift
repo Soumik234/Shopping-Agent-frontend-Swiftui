@@ -2,7 +2,7 @@ import Foundation
 
 extension String {
     func parsedProducts() -> [ParsedProduct] {
-        let pattern = #"#(\d+)\.\s+(.+?)\s+\(ID:(\d+)\)\s+[—-]\s+\$(\d+(?:\.\d+)?)(?:\s+★\s*(\d+(?:\.\d+)?))?(?:\s+[—-]\s+(\S+))?"#
+        let pattern = #"#?(\d+)\.\s+(.+?)\s+\(ID:\s*(\d+)\)\s+[—-]\s+\$(\d+(?:\.\d+)?)(?:\s*★\s*(\d+(?:\.\d+)?))?(?:\s+[—-]\s+([A-Za-z-]+))?"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
 
         let range = NSRange(startIndex..<endIndex, in: self)

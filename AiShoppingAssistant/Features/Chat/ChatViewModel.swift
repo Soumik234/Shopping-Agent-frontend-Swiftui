@@ -18,6 +18,7 @@ final class ChatViewModel {
 
     private let api: ShoppingAPIProtocol
     private let container: AppContainer
+    private var productBeingOrdered: ParsedProduct?
     private var thinkingTask: Task<Void, Never>?
     private let thinkingLabels = [
         "Searching products...",
@@ -64,12 +65,14 @@ final class ChatViewModel {
             if response.content.localizedCaseInsensitiveContains("Order #") {
                 lastOrderMessage = response.content
                 if let order = response.content.parsedConfirmedOrder() {
-                    container.recordConfirmedOrder(order)
+                    container.recordConfirmedOrder(order.enriched(with: productBeingOrdered))
                 }
+                productBeingOrdered = nil
                 showOrderSuccess = true
             }
         } catch {
             stopThinking()
+            productBeingOrdered = nil
             errorMessage = Self.mapError(error)
         }
 
@@ -107,11 +110,16 @@ final class ChatViewModel {
 
     func order(_ product: ParsedProduct) async {
         productPendingConfirmation = nil
+        productBeingOrdered = product
         await sendMessage(text: "order #\(product.index)")
     }
 
     func parseProducts(from text: String) -> [ParsedProduct] {
         text.parsedProducts()
+    }
+
+    func products(for message: ChatMessage) -> [ParsedProduct] {
+        message.products.isEmpty ? parseProducts(from: message.content) : message.products
     }
 
     private func startThinking() {
@@ -157,5 +165,20 @@ final class ChatViewModel {
         }
 
         return "The assistant is temporarily unavailable."
+    }
+}
+
+private extension Order {
+    func enriched(with product: ParsedProduct?) -> Order {
+        guard let product else { return self }
+
+        return Order(
+            orderId: orderId,
+            productId: product.id,
+            productName: productName,
+            price: price,
+            orderedAt: orderedAt,
+            imageURL: product.imageURL
+        )
     }
 }

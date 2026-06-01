@@ -85,14 +85,44 @@ final class ShoppingAPIService: ShoppingAPIProtocol {
     }
 
     private func perform<Response: Decodable>(_ request: URLRequest, responseType: Response.Type) async throws -> Response {
+        log("➡️ \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "unknown URL")")
+
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
+            log("❌ Invalid response for \(request.url?.absoluteString ?? "unknown URL")")
             throw ShoppingAPIError.invalidResponse
         }
+
+        log("⬅️ \(httpResponse.statusCode) \(request.url?.absoluteString ?? "unknown URL")")
+        logResponseBody(data)
+
         guard 200..<300 ~= httpResponse.statusCode else {
+            log("❌ Server error \(httpResponse.statusCode)")
             throw ShoppingAPIError.server(statusCode: httpResponse.statusCode)
         }
-        return try decoder.decode(Response.self, from: data)
+
+        do {
+            return try decoder.decode(Response.self, from: data)
+        } catch {
+            log("❌ Decode error for \(Response.self): \(error)")
+            throw error
+        }
+    }
+
+    private func log(_ message: String) {
+        #if DEBUG
+        print("[ShoppingAPI] \(message)")
+        #endif
+    }
+
+    private func logResponseBody(_ data: Data) {
+        #if DEBUG
+        let maxLength = 4_096
+        let visibleData = data.prefix(maxLength)
+        let body = String(data: visibleData, encoding: .utf8) ?? "<non-UTF8 response: \(data.count) bytes>"
+        let suffix = data.count > maxLength ? "\n… truncated \(data.count - maxLength) bytes" : ""
+        log("📦 Response body:\n\(body)\(suffix)")
+        #endif
     }
 
     private func multipartBody(data: Data, mimeType: String, boundary: String) -> Data {

@@ -36,7 +36,7 @@ struct OrdersView: View {
             }
             .navigationTitle("Orders")
             .task(id: "\(container.selectedTab)-\(container.orderRefreshID)") {
-                guard container.selectedTab == 1 else { return }
+                guard container.selectedTab == 2 else { return }
                 await viewModel.load()
             }
             .sheet(item: $selectedOrder) { order in

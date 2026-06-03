@@ -6,8 +6,8 @@ final class ShoppingAPIService: ShoppingAPIProtocol {
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
-    init(baseURL: String = "https://shopping-agent-tb27.onrender.com") {
-        self.baseURL = URL(string: baseURL) ?? URL(string: "https://shopping-agent-tb27.onrender.com")!
+    init(baseURL: String = "http://192.168.0.241:8000") {
+        self.baseURL = URL(string: baseURL) ?? URL(string: "http://192.168.0.241:8000")!
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 60
@@ -34,6 +34,10 @@ final class ShoppingAPIService: ShoppingAPIProtocol {
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         request.httpBody = multipartBody(data: data, mimeType: mimeType, boundary: boundary)
         return try await perform(request, responseType: ChatMessage.self)
+    }
+
+    func getProducts() async throws -> [StoreProduct] {
+        try await request(path: "products", method: "GET", responseType: [StoreProduct].self)
     }
 
     func getOrders() async throws -> [Order] {

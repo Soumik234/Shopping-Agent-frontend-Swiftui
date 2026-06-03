@@ -4,6 +4,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var container: AppContainer
     @State private var chatViewModel: ChatViewModel
+    @State private var storeViewModel: StoreViewModel
     @State private var ordersViewModel: OrdersViewModel
     @State private var preferencesViewModel: PreferencesViewModel
     @State private var profileViewModel: ProfileViewModel
@@ -16,6 +17,7 @@ struct ContentView: View {
     init(container: AppContainer) {
         _container = State(initialValue: container)
         _chatViewModel = State(initialValue: ChatViewModel(api: container.api, container: container))
+        _storeViewModel = State(initialValue: StoreViewModel(api: container.api))
         _ordersViewModel = State(initialValue: OrdersViewModel(api: container.api, container: container))
         _preferencesViewModel = State(initialValue: PreferencesViewModel(api: container.api, container: container))
         _profileViewModel = State(initialValue: ProfileViewModel(api: container.api))
@@ -28,9 +30,13 @@ struct ContentView: View {
                     .tabItem { Label("Assistant", systemImage: "sparkles") }
                     .tag(0)
 
+                StoreView(viewModel: storeViewModel)
+                    .tabItem { Label("Store", systemImage: "storefront.fill") }
+                    .tag(1)
+
                 OrdersView(viewModel: ordersViewModel)
                     .tabItem { Label("Orders", systemImage: "bag.fill") }
-                    .tag(1)
+                    .tag(2)
 
                 ProfileView(
                     viewModel: profileViewModel,
@@ -40,7 +46,7 @@ struct ContentView: View {
                     chatViewModel.clearConversation()
                 }
                 .tabItem { Label("Profile", systemImage: "person.circle.fill") }
-                .tag(2)
+                .tag(3)
             }
             .environment(container)
             .preferredColorScheme(container.theme.colorScheme)

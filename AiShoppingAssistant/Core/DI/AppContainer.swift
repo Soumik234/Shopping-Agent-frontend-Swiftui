@@ -22,10 +22,10 @@ final class AppContainer {
 
     private(set) var api: ShoppingAPIProtocol
 
-    private static let baseURLKey = "https://shopping-agent-tb27.onrender.com"
+    private static let baseURLKey = "http://192.168.0.241:8000"
 
     private init() {
-        let savedURL = UserDefaults.standard.string(forKey: Self.baseURLKey) ?? "https://shopping-agent-tb27.onrender.com"
+        let savedURL = UserDefaults.standard.string(forKey: Self.baseURLKey) ?? "http://192.168.0.241:8000"
         self.baseURL = savedURL
         self.api = ShoppingAPIService(baseURL: savedURL)
     }

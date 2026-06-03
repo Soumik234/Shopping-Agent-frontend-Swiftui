@@ -6,6 +6,7 @@ struct ChatMessage: Codable, Identifiable, Equatable {
     var content: String
     var products: [ParsedProduct] = []
     var createdAt = Date()
+    var imageData: Data?
 
     enum CodingKeys: String, CodingKey {
         case role
@@ -18,13 +19,15 @@ struct ChatMessage: Codable, Identifiable, Equatable {
         role: String,
         content: String,
         products: [ParsedProduct] = [],
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        imageData: Data? = nil
     ) {
         self.id = id
         self.role = role
         self.content = content
         self.products = products
         self.createdAt = createdAt
+        self.imageData = imageData
     }
 
     init(from decoder: Decoder) throws {
@@ -34,6 +37,7 @@ struct ChatMessage: Codable, Identifiable, Equatable {
         products = try container.decodeIfPresent([ParsedProduct].self, forKey: .products) ?? []
         id = UUID()
         createdAt = Date()
+        imageData = nil
     }
 
     func encode(to encoder: Encoder) throws {

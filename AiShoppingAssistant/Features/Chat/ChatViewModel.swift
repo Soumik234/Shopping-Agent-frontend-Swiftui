@@ -45,9 +45,9 @@ final class ChatViewModel {
             let response: ChatMessage
             if let data = selectedImageData, overrideText == nil {
                 if !text.isEmpty {
-                    messages.append(ChatMessage(role: "user", content: text))
+                    messages.append(ChatMessage(role: "user", content: text, imageData: data))
                 } else {
-                    messages.append(ChatMessage(role: "user", content: "Find products like this image."))
+                    messages.append(ChatMessage(role: "user", content: "Find products like this image.", imageData: data))
                 }
                 inputText = ""
                 selectedImageData = nil
@@ -62,11 +62,10 @@ final class ChatViewModel {
 
             stopThinking()
             messages.append(response)
-            if response.content.localizedCaseInsensitiveContains("Order #") {
+            recordOrderHistoryItems(from: response.content)
+            if let confirmedOrder = response.content.parsedConfirmedOrder() {
                 lastOrderMessage = response.content
-                if let order = response.content.parsedConfirmedOrder() {
-                    container.recordConfirmedOrder(order.enriched(with: productBeingOrdered))
-                }
+                container.recordConfirmedOrder(confirmedOrder.enriched(with: productBeingOrdered))
                 productBeingOrdered = nil
                 showOrderSuccess = true
             }
@@ -77,6 +76,12 @@ final class ChatViewModel {
         }
 
         isLoading = false
+    }
+
+    private func recordOrderHistoryItems(from content: String) {
+        for order in content.parsedOrderHistoryItems() {
+            container.recordConfirmedOrder(order)
+        }
     }
 
     func retryLastRequest() async {

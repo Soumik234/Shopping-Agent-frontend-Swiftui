@@ -10,7 +10,7 @@ struct ChatView: View {
             VStack(spacing: 0) {
                 ChatHeader(
                     onClear: { showClearAlert = true },
-                    onOrders: { container.selectedTab = 1 }
+                    onOrders: { container.selectedTab = 2 }
                 )
                 .padding(.horizontal, DS.Spacing.lg)
                 .padding(.top, DS.Spacing.sm)
